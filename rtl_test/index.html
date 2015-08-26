@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+    <title>MathJax Dynamic Math Test Page</title>
+    <link href='https://fonts.googleapis.com/css?family=Amiri&subset=arabic,latin' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/earlyaccess/droidarabicnaskh.css' rel='stylesheet' type='text/css'>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [["$","$"],["\\(","\\)"]],
+          scale: 100
+          }
+      });
+
+      MathJax.Hub.Register.StartupHook("HTML-CSS Jax Ready", function () {
+        var REMAP = MathJax.OutputJax["HTML-CSS"].FONTDATA.REMAP;
+        var ZERO = 0x660;     // use 0x660 for Arabic, 0x6F0 for Persian
+        for (var i = 0; i < 10; i++) {REMAP[0x30+i] = ZERO+i}
+      });
+    </script>
+    <script type="text/javascript"
+            src="/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    <style>
+        .MathJax_Display, .MathJax_Display * {
+            font-family: Amiri !important;
+            direction: rtl;
+        }
+
+        #wrapper {
+            transform: scale(2, 2);
+            transform-origin: top center;
+            width: 30%;
+            margin: 50px auto 0;
+        }
+    </style>
+</head>
+<body dir="rtl">
+
+<div id="wrapper">
+    $$ س = {-ب \pm \sqrt{ب^٢-٤أج} \over ٢أ} $$
+
+    <div id="eq-2">
+        $${س^{٨}} = {ص+٢٠١٥}$$
+    </div>
+
+
+</div>
+</body>
+</html>

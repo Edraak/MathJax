@@ -106,13 +106,13 @@
     ".MJXc-mtable > *": {"display":"inline-table!important", "vertical-align":"middle"},
     ".MJXc-mtr": {"display":"table-row!important"},
     ".MJXc-mtd": {"display":"table-cell!important","text-align":"center","padding":".5em 0 0 .5em"},
-    ".MJXc-mtr > .MJXc-mtd:first-child": {"padding-left":0},
+    ".MJXc-mtr > .MJXc-mtd:first-child": {"padding-right":0},
     ".MJXc-mtr:first-child > .MJXc-mtd": {"padding-top":0},
     ".MJXc-mlabeledtr": {"display":"table-row!important"},
-    ".MJXc-mlabeledtr > .MJXc-mtd:first-child": {"padding-left":0},
+    ".MJXc-mlabeledtr > .MJXc-mtd:first-child": {"padding-right":0},
     ".MJXc-mlabeledtr:first-child > .MJXc-mtd": {"padding-top":0},
-    
-    ".MJXc-merror": {
+
+      ".MJXc-merror": {
       "background-color": "#FFFF88",
       color:   "#CC0000",
       border:  "1px solid #CC0000",
@@ -134,7 +134,7 @@
       }
     }
   })();
-  
+
   var BIGDIMEN = 1000000;
   var V = "V", H = "H";
 

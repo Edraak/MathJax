@@ -55,9 +55,9 @@
           padding:0, border:0, margin:0
         }},[["div",{
           id: "MathJax_Font_Test",
-          style: {position:"absolute", visibility:"hidden", top:0, left:0, width: "auto",
+          style: {position:"absolute", visibility:"hidden", top:0, right:0, width: "auto",
                   padding:0, border:0, margin:0, whiteSpace:"nowrap",
-                  textAlign:"left", textIndent:0, textTransform:"none",
+                  textAlign:"right", textIndent:0, textTransform:"none",
                   lineHeight:"normal", letterSpacing:"normal", wordSpacing:"normal",
                   fontSize:this.testSize[0], fontWeight:"normal", fontStyle:"normal",
                   fontSizeAdjust:"none"}
@@ -251,7 +251,7 @@
           "font-size":       "100%",
           "font-size-adjust":"none",
           "text-indent":     0,
-          "text-align":      "left",
+          "text-align":      "right",
           "text-transform":  "none",
           "letter-spacing":  "normal",
           "word-spacing":    "normal",
@@ -336,7 +336,7 @@
         },
         
         "#MathJax_Tooltip": {
-          position: "absolute", left: 0, top: 0,
+          position: "absolute", right: 0, top: 0,
           width: "auto", height: "auto",
           display: "none"
         },
@@ -439,7 +439,7 @@
       this.hiddenDiv = this.Element("div",{
         style:{visibility:"hidden", overflow:"hidden", position:"absolute", top:0,
                height:"1px", width: "auto", padding:0, border:0, margin:0,
-               textAlign:"left", textIndent:0, textTransform:"none",
+               textAlign:"right", textIndent:0, textTransform:"none",
                lineHeight:"normal", letterSpacing:"normal", wordSpacing:"normal"}
       });
       if (!document.body.firstChild) {document.body.appendChild(this.hiddenDiv)}
@@ -774,7 +774,7 @@
       }
       if (this.forceReflow) {
         //  WebKit can misplace some elements that should wrap to the next line
-        //  but gets them right on a reflow, so force reflow by toggling a stylesheet
+        //  but gets them left on a reflow, so force reflow by toggling a stylesheet
         var sheet = (document.styleSheets||[])[0]||{};
         sheet.disabled = true; sheet.disabled = false;
       }
@@ -842,8 +842,8 @@
         {child.marginTop = HTMLCSS.Em(bbox.H-Math.max(bbox.h,HTMLCSS.FONTDATA.lineH))}
       if (bbox.D != null && bbox.D > bbox.d)
         {child.marginBottom = HTMLCSS.Em(bbox.D-Math.max(bbox.d,HTMLCSS.FONTDATA.lineD))}
-      if (bbox.lw < 0) {child.paddingLeft = HTMLCSS.Em(-bbox.lw)}
-      if (bbox.rw > bbox.w) {child.marginRight = HTMLCSS.Em(bbox.rw-bbox.w)}
+      if (bbox.lw < 0) {child.paddingRight = HTMLCSS.Em(-bbox.lw)}
+      if (bbox.rw > bbox.w) {child.marginLeft = HTMLCSS.Em(bbox.rw-bbox.w)}
       //
       //  Get height and width of zoomed math and original math
       //
@@ -904,8 +904,8 @@
       var W, H, w = (span.bbox||{}).w, start = span;
       if (span.bbox && this.config.noReflows && span.bbox.exactW !== false) {
         if (!span.bbox.exactW) {
-          if (span.style.paddingLeft) w += this.unEm(span.style.paddingLeft)*(span.scale||1);
           if (span.style.paddingRight) w += this.unEm(span.style.paddingRight)*(span.scale||1);
+          if (span.style.paddingLeft) w += this.unEm(span.style.paddingLeft)*(span.scale||1);
         }
         return w;
       }
@@ -1048,7 +1048,7 @@
     },
     
     getPadding: function (span) {
-      var padding = {top:0, right:0, bottom:0, left:0}, has = false;
+      var padding = {top:0, left:0, bottom:0, right:0}, has = false;
       for (var id in padding) {if (padding.hasOwnProperty(id)) {
         var pad = span.style["padding"+id.charAt(0).toUpperCase()+id.substr(1)];
         if (pad) {padding[id] = this.length2em(pad); has = true;}
@@ -1056,7 +1056,7 @@
       return (has ? padding : false);
     },
     getBorders: function (span) {
-      var border = {top:0, right:0, bottom:0, left:0}, css = {}, has = false;
+      var border = {top:0, left:0, bottom:0, right:0}, css = {}, has = false;
       for (var id in border) {if (border.hasOwnProperty(id)) {
         var ID = "border"+id.charAt(0).toUpperCase()+id.substr(1);
         var style = span.style[ID+"Style"];
@@ -1081,7 +1081,7 @@
       var strut = this.Element("span",{
         isMathJax: true,
         style:{display:"inline-block", overflow:"hidden", height:h+"px",
-               width:"1px", marginRight:"-1px"}
+               width:"1px", marginLeft:"-1px"}
       });
       if (before) {span.insertBefore(strut,span.firstChild)} else {span.appendChild(strut)}
       return strut;
@@ -1091,12 +1091,12 @@
         isMathJax: true,
         style: {display:"inline-block", overflow:"hidden", height:"1px", width:this.Em(w)}
       });
-      if (w < 0) {blank.style.marginRight = blank.style.width; blank.style.width = 0}
+      if (w < 0) {blank.style.marginLeft = blank.style.width; blank.style.width = 0}
       if (before) {span.insertBefore(blank,span.firstChild)} else {span.appendChild(blank)}
       return blank;
     },
     createShift: function (span,w,before) {
-      var space = this.Element("span",{style:{marginLeft:this.Em(w)}, isMathJax:true});
+      var space = this.Element("span",{style:{marginRight:this.Em(w)}, isMathJax:true});
       if (before) {span.insertBefore(space,span.firstChild)} else {span.appendChild(space)}
       return space;
     },
@@ -1118,7 +1118,7 @@
         span.style.overflow = "hidden";       // for IE in quirks mode
       } else {
         if (this.msieNegativeSpaceBug) {span.style.height = ""}
-        span.style.marginLeft = this.Em(w);
+        span.style.marginRight = this.Em(w);
         if (HTMLCSS.safariNegativeSpaceBug && span.parentNode.firstChild == span)
           {this.createBlank(span,0,true)}
       }
@@ -1239,7 +1239,7 @@
       }
       // Place the box
       span.style.top = this.Em(-y-HH);
-      span.style.left = this.Em(x+dx);
+      span.style.right = this.Em(x+dx);
       // Update the bounding box
       if (bbox && BBOX) {
         if (bbox.H != null && (BBOX.H == null || bbox.H + y > BBOX.H)) {BBOX.H = bbox.H + y}
@@ -1266,7 +1266,7 @@
     },
     alignBox: function (span,align,y,dx) {
       if (dx == null) {dx = 0}
-      this.placeBox(span,dx,y); // set y position (and left aligned)
+      this.placeBox(span,dx,y); // set y position (and right aligned)
       if (this.msiePlaceBoxBug) {
         //
         //  placeBox() adds an extra &nbsp;, so remove it here.
@@ -1285,8 +1285,8 @@
         l = (50 - parseFloat(bbox.width)/2) + "%";
       }
       HUB.Insert(span.style,({
-        right:  {left:"", right: this.Em(r-dx)},
-        center: {left:l, marginLeft: c}
+        left:  {right:"", left: this.Em(r-dx)},
+        center: {right:l, marginRight: c}
       })[align]);
     },
     setStackWidth: function (span,w) {
@@ -1382,14 +1382,14 @@
     },
     extendDelimiterH: function (span,W,delim,scale,font) {
       var stack = this.createStack(span,true);
-      var left = this.createBox(stack), right = this.createBox(stack);
-      this.createChar(left,(delim.left||delim.rep),scale,font);
+      var right = this.createBox(stack), left = this.createBox(stack);
       this.createChar(right,(delim.right||delim.rep),scale,font);
+      this.createChar(left,(delim.left||delim.rep),scale,font);
       var rep = this.Element("span"); this.createChar(rep,delim.rep,scale,font);
       var mid = {bbox: {h:-this.BIGDIMEN, d:-this.BIGDIMEN}}, REP;
-      this.placeBox(left,-left.bbox.lw,0,true);
-      var w = (left.bbox.rw - left.bbox.lw) + (right.bbox.rw - right.bbox.lw) - .05,
-          x = left.bbox.rw - left.bbox.lw - .025, dx;
+      this.placeBox(right,-right.bbox.lw,0,true);
+      var w = (right.bbox.rw - right.bbox.lw) + (left.bbox.rw - left.bbox.lw) - .05,
+          x = right.bbox.rw - right.bbox.lw - .025, dx;
       if (delim.mid) {
         mid = this.createBox(stack); this.createChar(mid,delim.mid,scale,font);
         w += mid.bbox.w;
@@ -1414,11 +1414,11 @@
         if (delim.mid) {this.placeBox(mid,x,0,true); x += mid.bbox.w};
         x -= (w - W)/2;
       }
-      this.placeBox(right,x,0,true);
+      this.placeBox(left,x,0,true);
       span.bbox = {
-        w: x+right.bbox.rw, lw: 0, rw: x+right.bbox.rw,
-        H: Math.max(left.bbox.h,rep.bbox.h,right.bbox.h,mid.bbox.h),
-        D: Math.max(left.bbox.d,rep.bbox.d,right.bbox.d,mid.bbox.d),
+        w: x+left.bbox.rw, lw: 0, rw: x+left.bbox.rw,
+        H: Math.max(right.bbox.h,rep.bbox.h,left.bbox.h,mid.bbox.h),
+        D: Math.max(right.bbox.d,rep.bbox.d,left.bbox.d,mid.bbox.d),
         h: rep.bbox.h, d: rep.bbox.d, exactW: true
       }
       span.scale = scale;
@@ -1439,7 +1439,7 @@
         this.handleVariant(SPAN,variant,text);
         span.bbox = SPAN.bbox;
       } else {this.handleVariant(span,variant,text)}
-      if (data[2]) {span.style.marginLeft = this.Em(data[2])}     // x offset
+      if (data[2]) {span.style.marginRight = this.Em(data[2])}     // x offset
       if (data[3]) {                                              // y offset
         span.firstChild.style.verticalAlign = this.Em(data[3]);
         span.bbox.h += data[3]; if (span.bbox.h < 0) {span.bbox.h = 0}
@@ -1806,11 +1806,11 @@
 	if (bbox.h > BBOX.h) {BBOX.h = bbox.h}
 	if (bbox.D != null && bbox.D > BBOX.D) {BBOX.D = bbox.D}
 	if (bbox.H != null && bbox.H > BBOX.H) {BBOX.H = bbox.H}
-	if (child.style.paddingLeft) {BBOX.w += HTMLCSS.unEm(child.style.paddingLeft)*(child.scale||1)}
+	if (child.style.paddingRight) {BBOX.w += HTMLCSS.unEm(child.style.paddingRight)*(child.scale||1)}
 	if (BBOX.w + bbox.lw < BBOX.lw) {BBOX.lw = BBOX.w + bbox.lw}
 	if (BBOX.w + bbox.rw > BBOX.rw) {BBOX.rw = BBOX.w + bbox.rw}
 	BBOX.w += bbox.w;
-	if (child.style.paddingRight) {BBOX.w += HTMLCSS.unEm(child.style.paddingRight)*(child.scale||1)}
+	if (child.style.paddingLeft) {BBOX.w += HTMLCSS.unEm(child.style.paddingLeft)*(child.scale||1)}
 	if (bbox.width) {BBOX.width = bbox.width; BBOX.minWidth = bbox.minWidth}
         if (bbox.tw) {BBOX.tw = bbox.tw}
         if (bbox.ic) {BBOX.ic = bbox.ic} else {delete BBOX.ic}
@@ -1940,7 +1940,7 @@
 	if ((values.mathbackground && values.mathbackground !== MML.COLOR.TRANSPARENT) || 
              borders || padding) {
 	  var bbox = span.bbox, dd = (bbox.exact ? 0 : 1/HTMLCSS.em), lW = 0, rW = 0,
-              lpad = span.style.paddingLeft, rpad = span.style.paddingRight;
+              lpad = span.style.paddingRight, rpad = span.style.paddingLeft;
 	  if (this.isToken) {lW = bbox.lw; rW = bbox.rw - bbox.w}
 	  if (lpad !== "") {lW += HTMLCSS.unEm(lpad)*(span.scale||1)}
 	  if (rpad !== "") {rW -= HTMLCSS.unEm(rpad)*(span.scale||1)}
@@ -1949,34 +1949,34 @@
 	  var H = bbox.h + bbox.d, D = -bbox.d, lp = 0, rp = 0;
 	  if (W > 0) {W += 2*dd; lW -= dd}; if (H > 0) {H += 2*dd; D -= dd}; rW = -W-lW;
           if (borders) {
-            rW -= borders.right; D -= borders.bottom; lp += borders.left; rp += borders.right;
+            rW -= borders.left; D -= borders.bottom; lp += borders.right; rp += borders.left;
             bbox.h += borders.top; bbox.d += borders.bottom;
-            bbox.w += borders.left + borders.right;
-            bbox.lw -= borders.left; bbox.rw += borders.right;
+            bbox.w += borders.right + borders.left;
+            bbox.lw -= borders.right; bbox.rw += borders.left;
           }
           if (padding) {
-            H += padding.top + padding.bottom; W += padding.left + padding.right;
-            rW -= padding.right; D -= padding.bottom; lp += padding.left; rp += padding.right;
+            H += padding.top + padding.bottom; W += padding.right + padding.left;
+            rW -= padding.left; D -= padding.bottom; lp += padding.right; rp += padding.left;
             bbox.h += padding.top; bbox.d += padding.bottom;
-            bbox.w += padding.left + padding.right;
-            bbox.lw -= padding.left; bbox.rw += padding.right;
+            bbox.w += padding.right + padding.left;
+            bbox.lw -= padding.right; bbox.rw += padding.left;
           }
-          if (rp) {span.style.paddingRight = HTMLCSS.Em(rp)}
+          if (rp) {span.style.paddingLeft = HTMLCSS.Em(rp)}
 	  var frame = HTMLCSS.Element("span",{
             id:"MathJax-Color-"+this.spanID+HTMLCSS.idPostfix, isMathJax: true,
 	    style:{display:"inline-block", backgroundColor:values.mathbackground,
 		   width: HTMLCSS.Em(W), height:HTMLCSS.Em(H), verticalAlign: HTMLCSS.Em(D),
-		   marginLeft: HTMLCSS.Em(lW), marginRight: HTMLCSS.Em(rW)}
+		   marginRight: HTMLCSS.Em(lW), marginLeft: HTMLCSS.Em(rW)}
 	  });
           HTMLCSS.setBorders(frame,borders);
-          if (bbox.width) {frame.style.width = bbox.width; frame.style.marginRight = "-"+bbox.width}
+          if (bbox.width) {frame.style.width = bbox.width; frame.style.marginLeft = "-"+bbox.width}
 	  if (HTMLCSS.msieInlineBlockAlignBug) {
             // FIXME:  handle variable width background
 	    frame.style.position = "relative"; frame.style.width = frame.style.height = 0;
-	    frame.style.verticalAlign = frame.style.marginLeft = frame.style.marginRight = "";
+	    frame.style.verticalAlign = frame.style.marginRight = frame.style.marginLeft = "";
             frame.style.border = frame.style.padding = "";
             if (borders && HTMLCSS.msieBorderWidthBug)
-              {H += borders.top + borders.bottom; W += borders.left + borders.right}
+              {H += borders.top + borders.bottom; W += borders.right + borders.left}
             frame.style.width = HTMLCSS.Em(lp+dd);
 	    HTMLCSS.placeBox(HTMLCSS.addElement(frame,"span",{
 	      noAdjust: true, isMathJax: true,
@@ -2008,16 +2008,16 @@
 	    var core = this, parent = this.Parent();
 	    while (parent && parent.isEmbellished() && parent.Core() === core)
 	      {core = parent; parent = parent.Parent(); span = core.HTMLspanElement()}
-	    if (values.lspace) {span.style.paddingLeft =  HTMLCSS.Em(values.lspace)}
-	    if (values.rspace) {span.style.paddingRight = HTMLCSS.Em(values.rspace)}
+	    if (values.lspace) {span.style.paddingRight =  HTMLCSS.Em(values.lspace)}
+	    if (values.rspace) {span.style.paddingLeft = HTMLCSS.Em(values.rspace)}
 	  }
 	} else {
 	  var space = this.texSpacing();
 	  if (space !== "") {
             this.HTMLgetScale();
 	    space = HTMLCSS.length2em(space,this.scale)/(span.scale||1)*this.mscale;
-	    if (span.style.paddingLeft) {space += HTMLCSS.unEm(span.style.paddingLeft)}
-	    span.style.paddingLeft = HTMLCSS.Em(space);
+	    if (span.style.paddingRight) {space += HTMLCSS.unEm(span.style.paddingRight)}
+	    span.style.paddingRight = HTMLCSS.Em(space);
 	  }
 	}
       },
@@ -2544,7 +2544,7 @@
           //
           var space = HTMLCSS.TeX.nulldelimiterspace * this.mscale;
           var style = span.childNodes[HTMLCSS.msiePaddingWidthBug ? 1 : 0].style;
-          style.marginLeft = style.marginRight = HTMLCSS.Em(space);
+          style.marginRight = style.marginLeft = HTMLCSS.Em(space);
           span.bbox.w += 2*space; span.bbox.r += 2*space;
 	}
         this.SUPER(arguments).HTMLhandleSpace.call(this,span);
@@ -2595,11 +2595,11 @@
 	var box = HTMLCSS.createBox(sqrt);
 	if (this.data[1]) {
 	  var root = this.data[1].toHTML(box);
-	  root.style.paddingRight = root.style.paddingLeft = ""; // remove extra padding, if any
+	  root.style.paddingLeft = root.style.paddingRight = ""; // remove extra padding, if any
 	  HTMLCSS.Measured(root,box);
 	} else {box.bbox = this.HTMLzeroBBox()}
 	var h = this.HTMLrootHeight(surd.bbox.h+surd.bbox.d,scale,box)-d;
-	var w = Math.min(box.bbox.w,box.bbox.rw); // remove extra right-hand padding, if any
+	var w = Math.min(box.bbox.w,box.bbox.rw); // remove extra left-hand padding, if any
 	x = Math.max(w,surd.offset);
 	HTMLCSS.placeBox(box,x-w,h);
 	return x - surd.offset;
@@ -2691,7 +2691,7 @@
 			   this.data[i].HTMLcanStretch("Horizontal"));
 	    } else {
 	      stretch[i] = this.data[i].HTMLcanStretch("Horizontal");
-              children[i].style.paddingLeft = children[i].style.paddingRight = "";
+              children[i].style.paddingRight = children[i].style.paddingLeft = "";
 	    }
           }
         }
@@ -2709,7 +2709,7 @@
           if (stretch[i]) {
             box.bbox = this.data[i].HTMLstretchH(box,W).bbox;
             if (i !== this.base)
-              {children[i].style.paddingLeft = children[i].style.paddingRight = ""}
+              {children[i].style.paddingRight = children[i].style.paddingLeft = ""}
           }
           if (box.bbox.w > WW) {WW = box.bbox.w}
         }}
@@ -2728,7 +2728,7 @@
 		{box.insertBefore(HTMLCSS.createSpace(box.parentNode,0,0,-box.bbox.lw),box.firstChild)}
 	      HTMLCSS.createBlank(box,0,0,box.bbox.rw+.1);
 	    }
-	    dw = {left:0, center:(WW-box.bbox.w)/2, right:WW-box.bbox.w}[values.align];
+	    dw = {right:0, center:(WW-box.bbox.w)/2, left:WW-box.bbox.w}[values.align];
 	    x = dw; y = 0;
 	    if (i == this.over) {
 	      if (accent) {
@@ -2891,7 +2891,7 @@
         if (!phase || phase === HTMLCSS.PHASE.III) {
           HTMLCSS.placeBox(box,0,0);
           //
-          //  Get width right if minimum font size is set:
+          //  Get width left if minimum font size is set:
           //    Round to nearest pixel (plus a small amount), and convert back to outer-em's.
           //    Add the width to the span (outside the MathJax class, so uses outer em size,
           //    which makes it work even when minimum font size is in effect).
@@ -2938,28 +2938,28 @@
             if (shift) {
               shift *= HTMLCSS.em/HTMLCSS.outerEm;
               HUB.Insert(span.style,({
-                left: {marginLeft: HTMLCSS.Em(shift)},
-                right: {marginLeft: HTMLCSS.Em(Math.max(0,span.bbox.w+shift)), marginRight: HTMLCSS.Em(-shift)},
-                center: {marginLeft: HTMLCSS.Em(shift), marginRight: HTMLCSS.Em(-shift)}
+                right: {marginRight: HTMLCSS.Em(shift)},
+                left: {marginRight: HTMLCSS.Em(Math.max(0,span.bbox.w+shift)), marginLeft: HTMLCSS.Em(-shift)},
+                center: {marginRight: HTMLCSS.Em(shift), marginLeft: HTMLCSS.Em(-shift)}
               })[values.indentalign]);
               //
               //  Move the background color, of any
               //
 	      if (color) {
-                var L = parseFloat(color.style.marginLeft||"0")+shift,
-                    R = parseFloat(color.style.marginRight||"0")-shift;
-	        color.style.marginLeft = HTMLCSS.Em(L);
-	        color.style.marginRight =
-	          HTMLCSS.Em(R + (values.indentalign === "right" ?
+                var L = parseFloat(color.style.marginRight||"0")+shift,
+                    R = parseFloat(color.style.marginLeft||"0")-shift;
+	        color.style.marginRight = HTMLCSS.Em(L);
+	        color.style.marginLeft =
+	          HTMLCSS.Em(R + (values.indentalign === "left" ?
                       Math.min(0,span.bbox.w+shift) - span.bbox.w : 0));
-		if (HTMLCSS.msieColorBug && values.indentalign === "right") {
-                  if (parseFloat(color.style.marginLeft) > 0) {
+		if (HTMLCSS.msieColorBug && values.indentalign === "left") {
+                  if (parseFloat(color.style.marginRight) > 0) {
                     var padding = MathJax.HTML.addElement(color.parentNode,"span");
-                    padding.style.marginLeft = HTMLCSS.Em(R+Math.min(0,span.bbox.w+shift));
-                    color.nextSibling.style.marginRight = "0em";
+                    padding.style.marginRight = HTMLCSS.Em(R+Math.min(0,span.bbox.w+shift));
+                    color.nextSibling.style.marginLeft = "0em";
                   }
-		  color.nextSibling.style.marginLeft = "0em";
-		  color.style.marginRight = color.style.marginLeft = "0em";
+		  color.nextSibling.style.marginRight = "0em";
+		  color.style.marginLeft = color.style.marginRight = "0em";
 		}
 	      }
             }
@@ -3049,7 +3049,7 @@
           msieRuleBug: (mode < 7),           // rules need to be measured
           cloneNodeBug: (isIE8 && browser.version === "8.0"),
           msieItalicWidthBug: true,          // can't measure boxes ending in italics correctly
-          initialSkipBug: (mode < 8),        // confused by initial left-margin values
+          initialSkipBug: (mode < 8),        // confused by initial right-margin values
           msieNegativeBBoxBug: (mode >= 8),  // negative bboxes have positive widths
           msieIE6: !isIE7,
           msieItalicWidthBug: true,
