@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="ar">
+
 <head>
     <title>MathJax Dynamic Math Test Page</title>
 
@@ -9,8 +10,7 @@
     <script type="text/javascript" src="//media.readthedocs.org/javascript/jquery/jquery-2.0.3.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mustache.js/2.1.3/mustache.js"></script>
 
-    <script type="text/javascript"
-            src="../unpacked/MathJax.js?config=TeX-MML-AM_HTMLorMML-full&amp;delayStartupUntil=configured">
+    <script type="text/javascript" src="../unpacked/MathJax.js?config=TeX-MML-AM_HTMLorMML-full&amp;delayStartupUntil=configured">
     </script>
 
     <script type="text/javascript">
@@ -19,14 +19,13 @@
                 scale: 125
             }
         });
-
     </script>
 
     <script type="text/javascript" src="rtl_config.js"></script>
 
     <script type="text/javascript">
-        jQuery(function ($) {
-            var toObjectList = function (obj, idName, valueName) {
+        jQuery(function($) {
+            var toObjectList = function(obj, idName, valueName) {
                 idName = idName || 'id';
                 valueName = valueName || 'value';
 
@@ -46,47 +45,67 @@
                 return objectList;
             };
 
-
             var equations = toObjectList({
-                '#0 Fraction 1': 'x=\\frac{11+y}{1+2z^2}',
-                '#1 Fraction 2': 'x=\\frac{1+y}{1+2z^2}',
-                '#2 Fraction 3': 'x=\\frac{1+y}{1+2x^2}',
-                '#3 Big fraction': '2 = \\left( \\frac{\\left(3-x\\right) \\times 2}{3-x} \\right)',
-                '#4 Square': 'x={-b\\pm\\sqrt{b^2-4ac} \\over 2a}',
-                '#5 Integration': '\\int_0^\\infty e^{-x^2} dx=\\frac{\\sqrt{\\pi}}{2}',
-                '#6 Superscript and subscript': 'x = 10^{20}_5',
-                '#7 Sum': '\\sum_{n=1}^\\infty {1\\over n^2} = {\\pi^2\\over 6}',
-                '#8 Lightspeed': '\\lspeed = 299792458{m \\over \\scnd}',
-                '#9 Initial charge': 'q = 10',
-                '#10 Energy': 'E = x',
-                '#11 Meter': 'x = 10m',
-                '#12 Misc symbols A': 'a = \\varepszero + \\varepsilon',
-                '#13 Misc symbols B': 'b = \\phi + \\lambda + \\theta + \\Phi',
-                '#14 Misc symbols C': 'c = \\eta + €',
+                'Fraction 1': 'x=\\frac{11+y}{1+2z^2}',
+                'Fraction 2': 'x=\\frac{1+y}{1+2z^2}',
+                'Fraction 3': 'x=\\frac{1+y}{1+2x^2}',
+                'Big fraction': '2 = \\left( \\frac{\\left(3-x\\right) \\times 2}{3-x} \\right)',
+                'Square': 'x={-b\\pm\\sqrt{b^2-4ac} \\over 2a}',
+                'Integration': '\\int_0^\\infty e^{-x^2} dx=\\frac{\\sqrt{\\pi}}{2}',
+                'Superscript and subscript': 'x = 10^{20}_5',
+                'Sum': '\\sum_{n=1}^\\infty {1\\over n^2} = {\\pi^2\\over 6}',
+                'Lightspeed': '\\lspeed = 299792458{m \\over \\scnd}',
+                'Initial charge': 'q = 10',
+                'Energy': 'E = x',
+                'Meter': 'x = 10m + 20\\cm',
+                'Misc symbols A': 'a = \\epsilonzero + \\varepsilon',
+                'Misc symbols B': 'b = \\phi + \\lambda + \\theta + \\Phi',
+                'Misc symbols C': 'c = \\eta + €',
+                'Plancks and Boltzmanns': '\\Plancks \\neq \\Boltzmanns',
+                'Air Mass': '\\AM = x',
+                'Radiation': '\\rad = x',
+                'Amplifiers': '1\\Mega, 2\\nano, 3\\Giga, 4\\Tera, 3\\kilo, 20\\micro',
+                'Electricity': '\\Watt = \\Amp \\times \\volt',
+                'Sine and Cosine': '\\tan \\theta = {\\cos \\theta \\over \\sin \\theta}',
+                'Temrature': '\\Tmpr = 10\\Klvn',
+                'Current': '\\current = 10\\Amp',
+                'ER': '\\er',
+                'The J stuff': '\\J_\\zero, \\J_\\ph, \\J_\\diffe, \\J_\\sc',
+                'Voltage of Open Circuit': '\\V_\\oc',
+                'Concentation Stuff': '\\NA, \\ND, \\nii',
+                'Deplation Area': '\\Wd = x',
+                'Farad': '\\F = {{\\scnd^4 \\cdot \\Amp^2} \\over {\\kilo\\grm \\cdot m^2}}',
+                'Diffusion Length': '\\Ld = 10m',
+                'Electrons Diffusion': '\\D_\\ek',
+                'Electrons Motion Constant': '\\mue',
+                'Hole': '20\\hole',
+                'Electrons': '2 \\elctrn',
+                'Time': '1\\year = 365.25\\day, 1\\day = 24\\hour',
+                'Max Watt': '\\Watt_\\max',
             }, 'id', 'equation');
 
-            $.get('equations.html', function (template) {
+            $.get('equations.html', function(template) {
                 var rendered = Mustache.render(template, {
-                    equations: equations
+                    equations: equations.reverse()
                 });
 
                 $('#equations').html(rendered);
 
 
-                var render = function () {
+                var render = function() {
                     var $scriptTemplate = $('<script type="math/tex; mode=display"><\/script>');
                     var equation = $('#dynamic-equation').val();
 
                     $('#dynamic-ar').html(
-                            $scriptTemplate.clone().html(
-                                    '\\ar{' + equation + '}'
-                            )
+                        $scriptTemplate.clone().html(
+                            '\\ar{' + equation + '}'
+                        )
                     );
 
                     $('#dynamic-en').html(
-                            $scriptTemplate.clone().html(
-                                    equation
-                            )
+                        $scriptTemplate.clone().html(
+                            equation
+                        )
                     );
 
                     MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
@@ -114,7 +133,8 @@
 
         hr {
             margin-top: 30px;
-            margin-bottom: 30px;;
+            margin-bottom: 30px;
+            ;
         }
 
         .MathJax_Display {
@@ -130,12 +150,14 @@
         }
     </style>
 </head>
+
 <body>
 
-<div id="wrapper">
-    <div id="equations">
+    <div id="wrapper">
+        <div id="equations">
 
+        </div>
     </div>
-</div>
 </body>
+
 </html>

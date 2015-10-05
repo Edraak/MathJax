@@ -1,5 +1,5 @@
 ;
-(function() {
+(function () {
     var ArabicMathFont = 'Amiri'; // TODO: Make this configurable
 
     MathJax.Hub.Config({
@@ -27,7 +27,7 @@
         }
     });
 
-    MathJax.Hub.Register.StartupHook('TeX HTML Ready', function() {
+    MathJax.Hub.Register.StartupHook('TeX HTML Ready', function () {
         var TEX = MathJax.InputJax.TeX;
         var TEXDEF = TEX.Definitions;
 
@@ -39,15 +39,16 @@
 
                 'lspeed': 'LightSpeedAr',
                 'scnd': 'SecondsAr',
-                'Planck': 'PlancksAr',
-                'Boltzmann': 'BoltzmannsAr',
+                'Plancks': 'PlancksAr',
+                'Boltzmanns': 'BoltzmannsAr',
                 'zero': 'ZeroAr',
-                'varepszero': 'EpsilonZeroAr',
+                'epsilonzero': 'EpsilonZeroAr',
 
                 'AM': 'AirMassAr',
                 'Mega': 'MegaAr',
                 'nano': 'NanoAr',
                 'Giga': 'GigaAr',
+                'Tera': 'TeraAr',
                 'kilo': 'KiloAr',
                 'volt': 'VoltAr',
                 'Amp': 'AmpAr',
@@ -68,9 +69,10 @@
 
                 'er': 'EspsilonRAr',
 
-                'J': 'CurrentAr',
+                'J': 'CurrentDensityAr',
                 'FF': 'FillFactorAr',
-                'Voc': 'VoltageOpenCircuitAr',
+                'V': 'VoltageAr',
+                'oc': 'OpenCircuitAr',
                 'D': 'SpreadCoefficientAr',
                 'rad': 'RadiationAr',
                 'Tmpr': 'TemratureAr',
@@ -83,34 +85,50 @@
                 'sc': 'ShortCircuitAr',
 
                 // Light power
-                'P': 'PowerAr',
+                'P': 'PhotovoltaicEnergyAr',
                 'inn': 'INAr',
+
+                'grm': 'GramAr',
+                'mue': 'ElectronsMotionConstantAr',
+                'diffe': 'DiffusionElectronsAr',
             }
         });
 
-        var NUMBERS_MAP = [
-            '٠',  // 0
-            '١',  // 1
-            '٢',  // 2
-            '٣',  // 3
-            '٤',  // 4
-            '٥',  // 5
-            '٦',  // 6
-            '٧',  // 7
-            '٨',  // 8
-            '٩'  // 9
-        ];
+        var NUMBERS_MAP = {
+            '0': '٠',
+            '1': '١',
+            '2': '٢',
+            '3': '٣',
+            '4': '٤',
+            '5': '٥',
+            '6': '٦',
+            '7': '٧',
+            '8': '٨',
+            '9': '٩',
+            '\\.': '٫' // Decimal mark
+        };
+
+
+        var OPERATORS_MAP = {
+            // English to Arabic comma
+            ',': '،'
+        };
 
         // TODO: Perhaps even this should be configurable!
-        var SYMBOLS_MAP = {
-            // Variable naem
+        var IDENTIFIERS_MAP = {
+            // Math functions
+            'sin': 'جا',
+            'cos': 'جتا',
+            'tan': 'ظا',
+
+            // Variable name
             'a': 'ا',
 
-            // Variable naem
+            // Variable name
             // TODO: Use Arabic letter dotless beh 0x66e instead
             'b': 'ب',
 
-            // Variable naem.
+            // Variable name.
             // Suffixed with Unicdoe Arabic tatweel 0x0640
             'c': 'حـ',
 
@@ -152,8 +170,8 @@
             'z': 'ع'
         };
 
-        var ArabicTeX = function(english, arabic) {
-            return function(name) {
+        var ArabicTeX = function (english, arabic) {
+            return function (name) {
                 var tex;
                 if ('ar' === this.stack.env.lang) {
                     tex = arabic;
@@ -165,23 +183,30 @@
             };
         };
 
-        var ArabicText = function(english, arabicText) {
+        var ArabicText = function (english, arabicText) {
             return ArabicTeX(english, '\\fliph{\\text{' + arabicText + '}}');
         };
 
-        var ArabicSymbols = ArabicTeX;
+        var ArabicSymbols = function (english, arabicSymbols) {
+            var arabicTeX = arabicSymbols.replace(
+                 /([\u0600-\u06FF]+)/g,  // Match Arabic language
+                '\\fliph{\\text{$1}}'
+            );
+
+            return ArabicTeX(english, arabicTeX);
+        };
 
         var texParseMMLToken = TEX.Parse.prototype.mmlToken;
 
         TEX.Parse.Augment({
-            HandleArabic: function(name) {
+            HandleArabic: function (name) {
                 // TODO: Make the `documentElement.lang` check configurable
                 var pageLang = document.documentElement.lang;
                 if (pageLang === 'ar') {
                     this.MarkAsArabic(name);
                 }
             },
-            MarkAsArabic: function(name) {
+            MarkAsArabic: function (name) {
                 this.stack.env.lang = 'ar';
 
                 var CLASS = 'mfliph';
@@ -203,35 +228,22 @@
                     'fliph': true,
                 }));
             },
-            mapArabicNumbers: function(string) {
-                NUMBERS_MAP.forEach(function (hindiNumber, arabicNumber) {
-                    var regex = new RegExp('' + arabicNumber, 'g');
-                    string = string.replace(regex, hindiNumber);
-                });
-
-                return string;
-            },
-            mapArabicChars: function(string) {
-                // TODO: Move this function to the HTML-CSS OutputJax
-                for (var enChar in SYMBOLS_MAP) {
-                    if (SYMBOLS_MAP.hasOwnProperty(enChar)) {
-                        var arChar = SYMBOLS_MAP[enChar];
-                        var regex = new RegExp(enChar, 'g');
-                        string = string.replace(regex, arChar);
-                    }
-                }
-
-                return string;
-            },
             arabicNumber: function (token) {
-                var textContent = token.data[0].data[0];
+                var text = token.data[0].data[0];
 
-                if ('0' === textContent) {
+                if ('0' === text) {
                     // Special case for the Arabic zero
                     token.data[0].data[0] = 'صفر';
                 } else {
-                    var arabicNumbers = this.mapArabicNumbers(textContent);
-                    token.data[0].data[0] = arabicNumbers;
+                    var mapped = text;
+
+                    Object.keys(NUMBERS_MAP).forEach(function (arabicNumber) {
+                        var hindiNumber = NUMBERS_MAP[arabicNumber];
+                        var regex = new RegExp('' + arabicNumber, 'g');
+                        mapped = mapped.replace(regex, hindiNumber);
+                    });
+
+                    token.data[0].data[0] = mapped;
                 }
 
                 return token.With({
@@ -240,12 +252,19 @@
                 });
             },
             arabicIdentifier: function (token) {
-                // English Symbols
                 if ('chars' === token.data[0].type) {
-                    var textContent = token.data[0].data[0];
-                    var mapped = this.mapArabicChars(textContent);
+                    // English Symbols like X and Y
 
-                    if (mapped != textContent) {
+                    var text = token.data[0].data[0];
+                    var mapped = text;
+
+                    Object.keys(IDENTIFIERS_MAP).forEach(function (enChar) {
+                        var arChar = IDENTIFIERS_MAP[enChar];
+                        var regex = new RegExp(enChar, 'g');
+                        mapped = mapped.replace(regex, arChar);
+                    });
+
+                    if (mapped != text) {
                         token.data[0].data[0] = mapped;
 
                         token = token.With({
@@ -254,6 +273,7 @@
                         });
                     }
                 } else if ('entity' === token.data[0].type) {
+                    // Latin letters like Pi and Theta
                     token = token.With({
                         fliph: true
                     });
@@ -261,16 +281,39 @@
 
                 return token;
             },
+            arabicOperator: function (token) {
+                var text = token.data[0].data[0];
+                var mapped = text;
+
+                Object.keys(OPERATORS_MAP).forEach(function (enOperator) {
+                    var regex = new RegExp('' + enOperator, 'g');
+                    var arOperator = OPERATORS_MAP[enOperator];
+                    mapped = mapped.replace(regex, arOperator);
+                });
+
+                if (mapped !== text) {
+                    token = token.With({
+                        lang: 'ar',
+                        fliph: true
+                    });
+
+                    token.data[0].data[0] = mapped;
+                }
+
+                return token;
+            },
             mmlToken: function (token) {
-                // TODO: Check for possible incomability with boldsymbol
+                // TODO: Check for possible incomparability with boldsymbol
                 // extension
-                var token = texParseMMLToken.call(this, token);
+                var token = texParseMMLToken.apply(this, [token]);
 
                 if ('ar' === this.stack.env.lang) {
                     if ('mn' === token.type) {
                         token = this.arabicNumber(token);
                     } else if ('mi' === token.type) {
                         token = this.arabicIdentifier(token);
+                    } else if ('mo' === token.type) {
+                        token = this.arabicOperator(token);
                     }
                 }
 
@@ -289,6 +332,7 @@
             MegaAr: ArabicText('M', 'ميجا'),
             NanoAr: ArabicText('n', 'نانو'),
             GigaAr: ArabicText('G', 'جيجا'),
+            TeraAr: ArabicText('T', 'تيرا'),
             KiloAr: ArabicText('k', 'كيلو'),
             VoltAr: ArabicText('v', 'فولت'),
             AmpAr: ArabicText('A', 'امبير'),
@@ -307,35 +351,39 @@
             DayAr: ArabicText('\\text{day}', 'يوم'),
             YearAr: ArabicText('\\text{year}', 'سنة'),
 
-            EspsilonRAr: ArabicTeX('ϵr', '\\fliph{ϵr}'),
+            EspsilonRAr: ArabicTeX('\\epsilon{}r', '\\fliph{\\epsilon{}r}'),
 
-            // TODO: Enter the actual Arabic letters before the mapping
-            CurrentAr: ArabicSymbols('J', 'k.t'), // --> ك.ت
-            FillFactorAr: ArabicSymbols('FF', 'z.t'), // z.t --> ع.ت
-            VoltageOpenCircuitAr: ArabicSymbols('V_{oc}', 'c_m'), // c --> حـ, m --> م
-            SpreadCoefficientAr: ArabicSymbols('D', 'm'), // m --> م
-            RadiationAr: ArabicSymbols('l', 'z'), // z --> ع
-            TemratureAr: ArabicSymbols('T', 'd'), // d --> د
-            CurrentAr: ArabicSymbols('I', 't'), // t --> ت
-            ConcentrationReceiverAtomAr: ArabicSymbols('NA', 'n_f'), // n --> ن, f --> ق
-            ConcentrationDonorAtomAr: ArabicSymbols('ND', 'n_m'), // n --> ن, m --> م
-            ConcentrationCarierPureAr: ArabicSymbols('ni', 'n_k'), // n --> ن, k --> ك
-            DeplationAreaWidthAr: ArabicSymbols('W', 'l_n'), // l --> ل, n --> ن
-            DiffusionLengthAr: ArabicSymbols('Ld', 'l_r'), // l --> ل, r --> ر
-            ShortCircuitAr: ArabicSymbols('sc', 'f'), // f --> ق
-            PowerAr: ArabicSymbols('P', 't'), // t --> ط
-            INAr: ArabicSymbols('in', 'd') // d --> د
+            CurrentDensityAr: ArabicSymbols('J', 'ك.ت'),
+            FillFactorAr: ArabicSymbols('FF', 'ع.ت'),
+            VoltageAr: ArabicSymbols('V', 'جـ'),
+            OpenCircuitAr: ArabicSymbols('oc', 'م'),
+            SpreadCoefficientAr: ArabicSymbols('D', 'م'),
+            RadiationAr: ArabicSymbols('l', 'ع'),
+            TemratureAr: ArabicSymbols('T', 'د'),
+            CurrentAr: ArabicSymbols('I', 'ت'),
+            ConcentrationReceiverAtomAr: ArabicSymbols('NA', 'ن_ق'),
+            ConcentrationDonorAtomAr: ArabicSymbols('ND', 'ن_م'),
+            ConcentrationCarierPureAr: ArabicSymbols('ni', 'ن_ك'),
+            DeplationAreaWidthAr: ArabicSymbols('W', 'ل_ن'),
+            DiffusionLengthAr: ArabicSymbols('L_d', 'ل_ر'),
+            ShortCircuitAr: ArabicSymbols('sc', 'ق'),
+            PhotovoltaicEnergy: ArabicSymbols('P', 'ط'),
+            INAr: ArabicSymbols('in', 'د'),
+
+            GramAr: ArabicText('g', 'غرام'),
+            ElectronsMotionConstantAr: ArabicTeX('\\mu{}e', '\\fliph{\\mu{}e}'),
+            DiffusionElectronsAr: ArabicSymbols('\\text{diff},e', 'ن\\ ك'),
         });
     });
 
     // TODO: Move HTML-CSS specific stuff here instead of the TeX Jax
-    MathJax.Hub.Register.StartupHook('mml Jax Ready', function() {
-        MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready', function() {
+    MathJax.Hub.Register.StartupHook('mml Jax Ready', function () {
+        MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready', function () {
             var MML = MathJax.ElementJax.mml;
 
             var mnToHTML = MML.mn.prototype.toHTML;
 
-            var flipHElement = function (token, element) {
+            var flipHorizontalElement = function (token, element) {
                 if (token.Get('fliph')) {
                     var flipElement = document.createElement('span');
                     var className = 'mfliph';
@@ -361,26 +409,26 @@
 
             var miToHTML = MML.mi.prototype.toHTML;
             MML.mi.Augment({
-                toHTML: function(span) {
-                    var element = miToHTML.call(this, span);
+                toHTML: function (span) {
+                    var element = miToHTML.apply(this, [span]);
 
                     if (Node.TEXT_NODE === element.firstChild.nodeType) {
-                        flipHElement(this, element);
+                        flipHorizontalElement(this, element);
                     } else {
-                        flipHElement(this, element.firstChild);
+                        flipHorizontalElement(this, element.firstChild);
                     }
 
                     return element;
                 }
             });
 
-            ['mn', 'mtext', 'msubsup'].forEach(function (name) {
+            ['mn', 'mo', 'mtext', 'msubsup', 'mrow'].forEach(function (name) {
                 var originalToHTML = MML[name].prototype.toHTML;
 
                 MML[name].Augment({
-                    toHTML: function(span) {
-                        var element = originalToHTML.call(this, span);
-                        flipHElement(this, element);
+                    toHTML: function (span) {
+                        var element = originalToHTML.apply(this, [span]);
+                        flipHorizontalElement(this, element);
                         return element;
                     }
                 });
