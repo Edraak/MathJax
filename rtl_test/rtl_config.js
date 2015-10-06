@@ -361,7 +361,7 @@
             DeplationAreaWidthAr: ArabicSymbols('W', 'ل_ن'),
             DiffusionLengthAr: ArabicSymbols('L_d', 'ل_ر'),
             ShortCircuitAr: ArabicSymbols('sc', 'ق'),
-            PhotovoltaicEnergy: ArabicSymbols('P', 'ط'),
+            PhotovoltaicEnergyAr: ArabicSymbols('P', 'ط'),
             INAr: ArabicSymbols('in', 'د'),
 
             GramAr: ArabicText('g', 'غرام'),
