@@ -35,7 +35,7 @@
             macros: {
                 'ar': 'HandleArabic',
                 'alwaysar': 'MarkAsArabic',
-                'fliph': 'FlipHorizontal',
+                'fliph': 'HandleFlipHorizontal',
 
                 'lspeed': 'LightSpeedAr',
                 'scnd': 'SecondsAr',
@@ -211,16 +211,18 @@
 
                 var arg = this.GetArgumentMML(name);
 
-                this.Push(arg.With({
-                    'fliph': true,
-                    'lang': 'ar'
+                this.Push(this.flipHorizontal(arg).With({
+                    lang: 'ar'
                 }));
             },
-            FlipHorizontal: function (name) {
+            HandleFlipHorizontal: function (name) {
                 var arg = this.GetArgumentMML(name);
-                this.Push(arg.With({
-                    'fliph': true
-                }));
+                this.Push(this.flipHorizontal(arg));
+            },
+            flipHorizontal: function (token) {
+                return token.With({
+                    fliph: !token.Get('fliph')
+                });
             },
             arabicNumber: function (token) {
                 var text = token.data[0].data[0];
@@ -240,9 +242,8 @@
                     token.data[0].data[0] = mapped;
                 }
 
-                return token.With({
-                    lang: 'ar',
-                    fliph: true
+                return this.flipHorizontal(token).With({
+                    lang: 'ar'
                 });
             },
             arabicIdentifier: function (token) {
@@ -261,16 +262,13 @@
                     if (mapped != text) {
                         token.data[0].data[0] = mapped;
 
-                        token = token.With({
-                            lang: 'ar',
-                            fliph: true
+                        token =  this.flipHorizontal(token).With({
+                            lang: 'ar'
                         });
                     }
                 } else if ('entity' === token.data[0].type) {
                     // Latin letters like Pi and Theta
-                    token = token.With({
-                        fliph: true
-                    });
+                    token = this.flipHorizontal(token);
                 }
 
                 return token;
@@ -286,9 +284,8 @@
                 });
 
                 if (mapped !== text) {
-                    token = token.With({
-                        lang: 'ar',
-                        fliph: true
+                    token = this.flipHorizontal(token).With({
+                        lang: 'ar'
                     });
 
                     token.data[0].data[0] = mapped;
@@ -386,7 +383,7 @@
                         className += ' ' + 'mar';
                     }
 
-                    flipElement.className = className;
+                    flipElement.className += ' ' + className;
 
                     if (Node.TEXT_NODE === element.firstChild.nodeType) {
                         flipElement.textContent = element.textContent;
