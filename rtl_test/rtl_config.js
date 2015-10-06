@@ -209,23 +209,17 @@
             MarkAsArabic: function (name) {
                 this.stack.env.lang = 'ar';
 
-                var CLASS = 'mfliph';
-
                 var arg = this.GetArgumentMML(name);
 
-                if (arg['class'] != null) {
-                    CLASS = arg['class'] + ' ' + CLASS
-                }
-
                 this.Push(arg.With({
-                    'class': CLASS,
+                    'fliph': true,
                     'lang': 'ar'
                 }));
             },
             FlipHorizontal: function (name) {
                 var arg = this.GetArgumentMML(name);
                 this.Push(arg.With({
-                    'fliph': true,
+                    'fliph': true
                 }));
             },
             arabicNumber: function (token) {
