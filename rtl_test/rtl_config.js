@@ -187,6 +187,19 @@
             return ArabicTeX(english, '\\fliph{\\text{' + arabicText + '}}');
         };
 
+        var ArabicTextWithSpace = function (english, arabicText) {
+            var arabic = '\\ \\fliph{\\text{' + arabicText + '}}';
+
+            return function (name) {
+                var tex;
+                if ('ar' === this.stack.env.lang) {
+                    this.Push(TEX.Parse(arabic).mml());
+                } else {
+                    this.Push(TEX.Parse(english).mml());
+                }
+            };
+        };
+
         var ArabicSymbols = function (english, arabicSymbols) {
             var arabicTeX = arabicSymbols.replace(
                  /([\u0600-\u06FF]+)/g,  // Match Arabic language
@@ -226,52 +239,49 @@
             },
             arabicNumber: function (token) {
                 var text = token.data[0].data[0];
+                var mapped = text;
 
-                if ('0' === text) {
+                if ('0' === mapped) {
                     // Special case for the Arabic zero
-                    token.data[0].data[0] = 'صفر';
+                    mapped = 'صفر';
                 } else {
-                    var mapped = text;
-
                     Object.keys(NUMBERS_MAP).forEach(function (arabicNumber) {
                         var hindiNumber = NUMBERS_MAP[arabicNumber];
                         var regex = new RegExp('' + arabicNumber, 'g');
                         mapped = mapped.replace(regex, hindiNumber);
                     });
-
-                    token.data[0].data[0] = mapped;
                 }
 
-                return this.flipHorizontal(token).With({
-                    lang: 'ar'
-                });
+                if (mapped !== text) {
+                    token.data[0].data[0] = mapped;
+                    token = token.With({
+                        fontLang: 'ar'
+                    });
+                }
+
+                return this.flipHorizontal(token);
             },
             arabicIdentifier: function (token) {
+                var text = token.data[0].data[0];
+                var mapped = text;
+
                 if ('chars' === token.data[0].type) {
                     // English Symbols like X and Y
-
-                    var text = token.data[0].data[0];
-                    var mapped = text;
-
                     Object.keys(IDENTIFIERS_MAP).forEach(function (enChar) {
                         var arChar = IDENTIFIERS_MAP[enChar];
                         var regex = new RegExp(enChar, 'g');
                         mapped = mapped.replace(regex, arChar);
                     });
-
-                    if (mapped != text) {
-                        token.data[0].data[0] = mapped;
-
-                        token =  this.flipHorizontal(token).With({
-                            lang: 'ar'
-                        });
-                    }
-                } else if ('entity' === token.data[0].type) {
-                    // Latin letters like Pi and Theta
-                    token = this.flipHorizontal(token);
                 }
 
-                return token;
+                if (mapped !== text) {
+                    token.data[0].data[0] = mapped;
+                    token = token.With({
+                        fontLang: 'ar'
+                    });
+                }
+
+                return this.flipHorizontal(token);
             },
             arabicOperator: function (token) {
                 var text = token.data[0].data[0];
@@ -285,7 +295,7 @@
 
                 if (mapped !== text) {
                     token = this.flipHorizontal(token).With({
-                        lang: 'ar'
+                        fontLang: 'ar'
                     });
 
                     token.data[0].data[0] = mapped;
@@ -313,18 +323,16 @@
             LightSpeedAr: ArabicText('c', 'سرعة الضوء'),
             PlancksAr: ArabicText('\\hbar', 'ثابت بلانك'),
             BoltzmannsAr: ArabicText('k', 'ثابت بولتزمان'),
-            ZeroAr: ArabicText('0', '0'),
             SecondsAr: ArabicText('s', 'ث'),
-            EpsilonZeroAr: ArabicTeX(
-                '\\varepsilon_\\zero',
-                '\\fliph{\\varepsilon_\\zero}'
-            ),
+
             AirMassAr: ArabicText('AM', 'كتلة هواء'),
+
             MegaAr: ArabicText('M', 'ميجا'),
             NanoAr: ArabicText('n', 'نانو'),
             GigaAr: ArabicText('G', 'جيجا'),
             TeraAr: ArabicText('T', 'تيرا'),
             KiloAr: ArabicText('k', 'كيلو'),
+
             VoltAr: ArabicText('v', 'فولت'),
             AmpAr: ArabicText('A', 'امبير'),
             KilvenAr: ArabicText('K', 'كلفن'),
@@ -342,7 +350,14 @@
             DayAr: ArabicText('\\text{day}', 'يوم'),
             YearAr: ArabicText('\\text{year}', 'سنة'),
 
+            GramAr: ArabicText('g', 'غرام'),
+
             EspsilonRAr: ArabicTeX('\\epsilon{}r', '\\fliph{\\epsilon{}r}'),
+            EpsilonZeroAr: ArabicTeX(
+                '\\varepsilon_\\zero',
+                '\\fliph{\\varepsilon_\\zero}'
+            ),
+            ZeroAr: ArabicTeX('0', '\\text{0}'),
 
             CurrentDensityAr: ArabicSymbols('J', 'ك.ت'),
             FillFactorAr: ArabicSymbols('FF', 'ع.ت'),
@@ -361,7 +376,6 @@
             PhotovoltaicEnergyAr: ArabicSymbols('P', 'ط'),
             INAr: ArabicSymbols('in', 'د'),
 
-            GramAr: ArabicText('g', 'غرام'),
             ElectronsMotionConstantAr: ArabicTeX('\\mu{}e', '\\fliph{\\mu{}e}'),
             DiffusionElectronsAr: ArabicSymbols('\\text{diff},e', 'ن\\ ك'),
         });
@@ -375,13 +389,15 @@
             var mnToHTML = MML.mn.prototype.toHTML;
 
             var flipHorizontalElement = function (token, element) {
+                var className = '';
+
+                if ('ar' === token.Get('fontLang')) {
+                    className += ' ' + 'mar';
+                }
+
                 if (token.Get('fliph')) {
                     var flipElement = document.createElement('span');
-                    var className = 'mfliph';
-
-                    if ('ar' === token.Get('lang')) {
-                        className += ' ' + 'mar';
-                    }
+                    className += ' ' + 'mfliph';
 
                     flipElement.className += ' ' + className;
 
@@ -395,6 +411,8 @@
                     }
 
                     element.appendChild(flipElement);
+                } else {
+                    element.className += ' ' + className;
                 }
             };
 
