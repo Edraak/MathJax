@@ -1,3 +1,13 @@
+-----------
+#DEPRICATED
+I no longer maintain this repo. I'm refactoring this work to be an extension, follow the progress/get the code from:
+
+ - https://github.com/mathjax/MathJax-third-party-extensions/pull/20
+
+-----------
+
+-----------
+
 # MathJax - Right to Left Equations
 
 This is a MathJax configuration to support right to left languages such as Arabic.
